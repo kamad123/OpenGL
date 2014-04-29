@@ -243,8 +243,11 @@ void text( int sc)
 	{
 		sprintf(difficulty,"Hard");
 	}
+	if(sc <40)
 	sprintf(text,"Difficulty: %s    Your Score: %d",difficulty, sc);
-	// The color, red for me
+	else
+	  sprintf(text,"You have won !!");
+	// The color
 	glColor4fv(text_color_array[text_color]);
 	// Position of the text to be printer
 	glPushMatrix();
