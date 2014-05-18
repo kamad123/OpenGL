@@ -6,13 +6,9 @@
 //#include<iostream>
 //using namespace std;
 
-GLfloat whiteSpecularLight[] = {0.0, 0.0, 0.0}; 
-GLfloat whiteSpecularMaterial[]={1,1,1};
-GLfloat blackAmbientLight[] = {0.0, 0.0, 0.0}; 
-GLfloat whiteDiffuseLight[] = {1.0, 1.0, 1.0}; 
-GLfloat mShininess[] = {128}; 
+
 int score = 0;
-int brick_color = 1,ball_color = 3,level = 0,paddle_color = 2,text_color = 5;
+int brick_color = 1,ball_color = 3,level = 0,paddle_color = 2,text_color = 5,size = 1;;
 GLfloat twoModel[]={GL_TRUE};
 int game_level[] = {7,5,2};
 float rate = game_level[level];
@@ -20,6 +16,7 @@ float rate = game_level[level];
 GLfloat brick_color_array[][3] = {{1,0,0},{0,0,1},{0,1,0},{1,0,1},{1,1,0},{0,1,1}};
 GLfloat paddle_color_array[][3] = {{1,0,0},{0,0,1},{0,1,0},{1,0,1},{1,1,0},{0,1,1}};
 GLfloat text_color_array[][4] = {{1,0,0,1},{0,0,1,1},{0,1,0,1},{1,0,1,1},{1,1,0,1},{0,1,1,1}};
+GLfloat paddle_size[] = {2,4,6};
 //The grid parameters for the bricks
 int rows = 4;
 int columns = 10;
@@ -43,10 +40,10 @@ void draw_paddle()
 	glDisable(GL_LIGHTING);
 	glColor3fv(paddle_color_array[paddle_color]);
 	glBegin(GL_POLYGON);
-	glVertex3f(-4+px,0-15,0);
-	glVertex3f(4+px,0-15,0);
-	glVertex3f(4+px,1-15,0);
-	glVertex3f(-4+px,1-15,0);
+	glVertex3f(-paddle_size[size]+px,0-15,0);
+	glVertex3f(paddle_size[size]+px,0-15,0);
+	glVertex3f(paddle_size[size]+px,1-15,0);
+	glVertex3f(-paddle_size[size]+px,1-15,0);
 	glEnd();
 	glEnable(GL_LIGHTING);
 }
@@ -109,26 +106,62 @@ void draw_bricks()
 //Function to draw the spherical ball
 void draw_ball()
 {
-	glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, twoModel);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, whiteSpecularLight);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, blackAmbientLight);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuseLight);
+	GLfloat ambient1[] = {1,1,1};
+	GLfloat diffuse1[] = {0.4,0.4,0.4};
+	GLfloat specular1[] = {1,1,1};
+	
+	GLfloat position[] = {0,0,-50,1};
+	GLfloat ambient2[] = {0,0,0};
+	GLfloat diffuse2[] = {1,1,1};
+	GLfloat specular2[] = {0,1,1};
 	
 	float materialColours[][3]={{1,0,0},{0,0,1},{0,1,0},{1,0,1},{1,1,0},{0,1,1}};
-	float materialLightBr[]={0.2,0.2,0.0};
+	GLfloat matAmbient1[] = {1,1,1};
+	GLfloat matDiffuse1[] = {1,1,1};
+	GLfloat matSpecular1[] = {1,1,1};
+	GLfloat shininess[] = {1000};
+	
+	glLightfv(GL_LIGHT0,GL_SPECULAR,specular1);
+	glLightfv(GL_LIGHT0,GL_AMBIENT,ambient1);
+	glLightfv(GL_LIGHT0,GL_DIFFUSE,diffuse1);
+	
+	glLightfv(GL_LIGHT1,GL_POSITION,position);
+	glLightfv(GL_LIGHT1,GL_SPECULAR,specular2);
+	glLightfv(GL_LIGHT1,GL_AMBIENT,ambient2);
+	glLightfv(GL_LIGHT1,GL_DIFFUSE,diffuse2);
+	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,materialColours[ball_color]);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,materialLightBr);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,whiteSpecularMaterial);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
+	
+	
+	
 	glPushMatrix();
 	glTranslatef(bx,by,0);
 	glScalef(1.0, 1.0, 0.5);
+	//glScalef(size[i], size[], size[]);
 	glutSolidSphere(1.0, 52, 52);
-	//    glScalef(1/2.0, 1/2.0, 1/1.0);
+	   
 	glPopMatrix();
 	
 }
 
+
+//mouse function
+void mousemotion(int x,int y)
+{
+  if(start == 1)
+  {
+    px=(x-glutGet(GLUT_WINDOW_WIDTH)/2)/20;
+    if(px>15)
+	  {
+		  px=15;
+	  }
+	  if(px<-15)
+	  {
+		  px=-15;
+	  }
+    }
+}
 
 //handle brick color
 void change_brick_color(int action)
@@ -167,6 +200,12 @@ void change_paddle_color(int action)
 void change_text_color(int action)
 {
 	text_color = action -1;
+}
+
+//handle paddle size
+void change_paddle_size(int action)
+{
+	size = action -1;
 }
 
 //add menu
@@ -211,12 +250,18 @@ void addMenu()
 	glutAddMenuEntry("Yellow",5);
 	glutAddMenuEntry("Cyan",6);
 	
+	int submenu6 = glutCreateMenu(change_paddle_size);
+	glutAddMenuEntry("Small",1);
+	glutAddMenuEntry("Medium",2);
+	glutAddMenuEntry("Large",3);
+	
 	glutCreateMenu(handle_menu);
 	glutAddSubMenu("Bricks Color",submenu1);
 	glutAddSubMenu("Ball Color",submenu2);
 	glutAddSubMenu("Paddle Color",submenu4);
 	glutAddSubMenu("Text Color",submenu5);
 	glutAddSubMenu("Difficulty",submenu3);
+	glutAddSubMenu("Paddle Size",submenu6);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	
 }
@@ -246,7 +291,16 @@ void text( int sc)
 	if(sc <40)
 	sprintf(text,"Difficulty: %s    Your Score: %d",difficulty, sc);
 	else
+	{
 	  sprintf(text,"You have won !!");
+	  start = 0;
+	  by = -12.8;
+	  bx = 0;
+	  dirx = 0;
+	  diry = 0;
+	  px = 0;	
+
+	}
 	// The color
 	glColor4fv(text_color_array[text_color]);
 	// Position of the text to be printer
@@ -281,6 +335,7 @@ void lightsOn()
 {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
 }
 
 void reshape (int w, int h) {
@@ -293,13 +348,13 @@ void reshape (int w, int h) {
 
 
 //function to take in keyboard entries
-void keyboard (int key, int x, int y)
+void keyboard (unsigned char key, int x, int y)
 {
 	switch(key)
 	{
-		case GLUT_KEY_RIGHT: px+=3; break;
-		case GLUT_KEY_LEFT: px-=3; break;
-		case 115:
+		case 'd': px+=3; break;
+		case 'a': px-=3; break;
+		case 's':
 		if(!start)
 		{
 			dirx = diry= 1;
@@ -376,29 +431,29 @@ void idle()
 	by+=diry/(rate);
 	rate-=0.001; // Rate at which the speed of ball increases
 	
-	
+	float x = paddle_size[size];
 	//Make changes here for the different position of ball after rebounded by paddle
-	if( by<=-12.8 && bx<(px+3) && bx>(px+1)&& start == 1 )
+	if( by<=-12.8 && bx<(px+x*2/3) && bx>(px+x/3)&& start == 1 )
 	{
 		dirx = 1;
 		diry = 1;
 	}
-	else if(by <=-12.8 && bx<(px-1) && bx>(px-3) && start == 1 )
+	else if(by <=-12.8 && bx<(px-x/3) && bx>(px-x*2/3) && start == 1 )
 	{
 		dirx = -1;
 		diry = 1;
 	}
-	else if( by<=-12.8 && bx<(px+1) &&bx>(px-1) && start == 1)
+	else if( by<=-12.8 && bx<(px+x/3) &&bx>(px-x/3) && start == 1)
 	{
 		dirx = dirx;
 		diry = 1;
 	}
-	else if(by <=-12.8 && bx<(px-3) && bx>(px-4.2) && start == 1 )
+	else if(by <=-12.8 && bx<(px-(x*2/3)) && bx>(px-(x+0.3)) && start == 1 )
 	{
 		dirx = -1.5;
 		diry = 0.8;
 	}
-	else if(by<=-12.8 && bx<(px+4.2) && bx>(px+3)&& start == 1 )
+	else if(by<=-12.8 && bx<(px+(x+0.3)) && bx>(px+x/3)&& start == 1 )
 	{
 		dirx = 1.5;
 		diry = 0.8;
@@ -426,9 +481,11 @@ int main (int argc,char **argv) {
 	glutReshapeFunc (reshape);
 	glEnable(GL_DEPTH_TEST);
 	glutIdleFunc (idle);
-	glutSpecialFunc(keyboard);
+	glutPassiveMotionFunc(mousemotion);
+	glutKeyboardFunc(keyboard);
 	lightsOn();
 	addMenu();
+	
 	glutMainLoop ();
 	return 0;
 }
