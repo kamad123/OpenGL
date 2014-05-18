@@ -149,6 +149,7 @@ void draw_ball()
 //mouse function
 void mousemotion(int x,int y)
 {
+  
   if(start == 1)
   {
     px=(x-glutGet(GLUT_WINDOW_WIDTH)/2)/20;
@@ -161,6 +162,8 @@ void mousemotion(int x,int y)
 		  px=-15;
 	  }
     }
+    
+    else glutSetCursor(GLUT_CURSOR_INHERIT);
 }
 
 //handle brick color
@@ -354,6 +357,7 @@ void keyboard (unsigned char key, int x, int y)
 	{
 		case 'd': px+=3; break;
 		case 'a': px-=3; break;
+		case 'q': exit(0); break;
 		case 's':
 		if(!start)
 		{
@@ -361,6 +365,7 @@ void keyboard (unsigned char key, int x, int y)
 			rate = game_level[level];
 			start = 1;
 			score = 0;
+			glutSetCursor(GLUT_CURSOR_NONE);
 			
 		}
 		break;
