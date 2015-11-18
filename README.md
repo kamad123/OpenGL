@@ -1,2 +1,1 @@
-This repository contains the following project(s) :
-- Brick Breaker
+My undergraduate academic project in which I designed the brick breaker game using OpenGL.
