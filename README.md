@@ -1,1 +1,1 @@
-My undergraduate academic project in which I designed the brick breaker game using OpenGL.
+The speed of ball is increased gradually after hitting each brick bringing a more fluid and dynamic approach to this game.
